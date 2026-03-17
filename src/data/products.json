@@ -1,12 +1,12 @@
 [
 	{
 		"id": 1,
-		"title": "Teclado Mecánico",
-		"description": "RGB Switch Blue",
-		"code": "TEC001",
-		"price": 5500,
-		"stock": 15,
-		"category": "Periféricos",
+		"title": "Remera",
+		"description": "Remera amarilla manga corta",
+		"code": "1452",
+		"price": 2000,
+		"stock": 5,
+		"category": "Remeras",
 		"thumbnails": [],
 		"status": true
 	}
