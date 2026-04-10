@@ -1,15 +1,25 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import handlebars from 'express-handlebars';
 import { Server } from 'socket.io';
+import mongoose from 'mongoose';
 import productsRouter from './routes/products.router.js';
 import cartsRouter from './routes/carts.router.js';
 import viewsRouter from './routes/views.router.js';
-import ProductManager from './managers/ProductManager.js';
+import { productModel } from './models/product.model.js';
 import __dirname from './utils.js';
 
 const app = express();
 const PORT = 8080;
-const manager = new ProductManager('./src/data/products.json');
+
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => console.log("Conectado con éxito a MongoDB"))
+    .catch(error => {
+        console.error("Error al conectar a MongoDB:");
+        console.error(error.message);
+    });
 
 const httpServer = app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
@@ -36,6 +46,11 @@ app.use('/', viewsRouter);
 
 socketServer.on('connection', async (socket) => {
     console.log("Nuevo cliente conectado");
-    const products = await manager.getProducts();
-    socket.emit('updateProducts', products);
+
+    try {
+        const products = await productModel.find().lean();
+        socket.emit('updateProducts', products);
+    } catch (error) {
+        console.error("Error al obtener productos para socket:", error.message);
+    }
 });

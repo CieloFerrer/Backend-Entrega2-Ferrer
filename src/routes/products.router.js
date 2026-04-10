@@ -5,12 +5,44 @@ const router = Router();
 const manager = new ProductManager('./src/data/products.json');
 
 router.get('/', async (req, res) => {
-    const products = await manager.getProducts();
-    res.send({ status: "success", payload: products });
+    try {
+        let { limit = 10, page = 1, sort, query } = req.query;
+        
+        const filter = query ? { 
+            $or: [
+                { category: query }, 
+                { status: query === 'true' } 
+            ] 
+        } : {};
+        
+        const options = {
+            limit: parseInt(limit),
+            page: parseInt(page),
+            sort: sort ? { price: sort === 'asc' ? 1 : -1 } : {},
+            lean: true
+        };
+
+        const result = await productModel.paginate(filter, options);
+
+        res.send({
+            status: "success",
+            payload: result.docs,
+            totalPages: result.totalPages,
+            prevPage: result.prevPage,
+            nextPage: result.nextPage,
+            page: result.page,
+            hasPrevPage: result.hasPrevPage,
+            hasNextPage: result.hasNextPage,
+            prevLink: result.hasPrevPage ? `/api/products?page=${result.prevPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}` : null,
+            nextLink: result.hasNextPage ? `/api/products?page=${result.nextPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}` : null
+        });
+    } catch (error) {
+        res.status(500).send({ status: "error", message: error.message });
+    }
 });
 
 router.get('/:pid', async (req, res) => {
-    const product = await manager.getProductById(req.params.pid);
+    const product = await productModel.findById(req.params.pid);
     if (!product) return res.status(404).send({ error: "Producto no encontrado" });
     res.send({ status: "success", payload: product });
 });

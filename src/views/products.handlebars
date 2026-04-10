@@ -1,0 +1,60 @@
+<div style="padding: 20px; font-family: Arial, sans-serif;">
+    <h1 style="text-align: center; color: #333;">Catálogo de Productos</h1>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 30px;">
+        {{#each products}}
+            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 12px; width: 250px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: white; text-align: center;">
+                <h3 style="margin-bottom: 10px; color: #007bff;">{{this.title}}</h3>
+                <p style="color: #666; font-size: 0.9em; height: 40px; overflow: hidden;">{{this.description}}</p>
+                <p style="background: #f8f9fa; padding: 5px; border-radius: 5px; display: inline-block; font-size: 0.8em;">Categoría: {{this.category}}</p>
+                <p style="font-size: 1.4em; font-weight: bold; color: #28a745; margin: 15px 0;">${{this.price}}</p>
+                
+                <button 
+                    onclick="addToCart('{{this._id}}')" 
+                    style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    Añadir al Carrito
+                </button>
+            </div>
+        {{/each}}
+    </div>
+
+    <div style="margin-top: 40px; text-align: center; display: flex; justify-content: center; align-items: center; gap: 20px;">
+        {{#if hasPrevPage}}
+            <a href="/products?page={{prevPage}}" style="text-decoration: none; padding: 10px 20px; background: #007bff; color: white; border-radius: 5px; font-weight: bold;">Anterior</a>
+        {{else}}
+            <span style="padding: 10px 20px; background: #ccc; color: white; border-radius: 5px; cursor: not-allowed;">Anterior</span>
+        {{/if}}
+
+        <span style="font-size: 1.1em; font-weight: bold; color: #555;">Página {{page}} de {{totalPages}}</span>
+
+        {{#if hasNextPage}}
+            <a href="/products?page={{nextPage}}" style="text-decoration: none; padding: 10px 20px; background: #007bff; color: white; border-radius: 5px; font-weight: bold;">Siguiente</a>
+        {{else}}
+            <span style="padding: 10px 20px; background: #ccc; color: white; border-radius: 5px; cursor: not-allowed;">Siguiente</span>
+        {{/if}}
+    </div>
+</div>
+
+<script>
+    const addToCart = (productId) => {
+        // Para la entrega, puedes usar un ID de carrito que hayas creado previamente en Postman
+        // o crear una lógica para guardarlo en localStorage.
+        const cartId = "TU_ID_DE_CARRITO_REAL_AQUI"; 
+        
+        fetch(`/api/carts/${cartId}/products/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success") {
+                alert("¡Producto añadido con éxito!");
+            } else {
+                alert("Error al añadir el producto");
+            }
+        })
+        .catch(err => console.error(err));
+    }
+</script>
